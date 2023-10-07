@@ -116,12 +116,11 @@ class AbstractPostProcessor(ABC):
                 continue
 
             if self._labels:
-                filtered_objects = [
+                if filtered_objects := [
                     detected_object
                     for detected_object in detected_objects_data.objects
                     if detected_object.label in self._labels
-                ]
-                if filtered_objects:
+                ]:
                     self.process(
                         PostProcessorFrame(
                             camera_identifier=detected_objects_data.camera_identifier,

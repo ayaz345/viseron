@@ -37,18 +37,19 @@ def test_setup_components(vis, caplog):
 
 def test_setup_components_2(vis, caplog):
     """Test setup of component."""
-    with patch("viseron.components.setup_component") as mock_setup_component, patch(
-        "threading.Thread.is_alive"
-    ) as mock_is_alive, patch("viseron.components.get_component") as mock_get_component:
+    with (patch("viseron.components.setup_component") as mock_setup_component, patch(
+            "threading.Thread.is_alive"
+        ) as mock_is_alive, patch("viseron.components.get_component") as mock_get_component):
         mock_is_alive.return_value = True
         setup_components(vis, {"mqtt": {}})
         assert (
             mock_setup_component.call_count
             == len(CORE_COMPONENTS) + len(DEFAULT_COMPONENTS) + 1
         )
-        calls = []
-        for _component in set.union(CORE_COMPONENTS, DEFAULT_COMPONENTS):
-            calls.append(call(vis, return_any(object)))
+        calls = [
+            call(vis, return_any(object))
+            for _component in set.union(CORE_COMPONENTS, DEFAULT_COMPONENTS)
+        ]
         calls.append(call(vis, return_any(object)))
 
         mock_setup_component.assert_has_calls(calls, True)

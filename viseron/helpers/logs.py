@@ -28,9 +28,7 @@ class DuplicateFilter(logging.Filter):
             else:
                 self.current_count += 1
                 if self.current_count > 0:
-                    record.msg = "{}, message repeated {} times".format(
-                        record.msg, self.current_count + 1
-                    )
+                    record.msg = f"{record.msg}, message repeated {self.current_count + 1} times"
         except ValueError:
             pass
         return True
@@ -70,11 +68,12 @@ class UnhelpfullLogFilter(logging.Filter):
         """Filter log record."""
         if any(error in record.msg for error in self.errors_to_ignore):
             return False
-        if isinstance(record.msg, str) and (
-            record.msg == "" or record.msg.isspace() or not record.msg.strip()
-        ):
-            return False
-        return True
+        return bool(
+            not isinstance(record.msg, str)
+            or record.msg != ""
+            and not record.msg.isspace()
+            and record.msg.strip()
+        )
 
 
 class ViseronLogFormat(ColoredFormatter):

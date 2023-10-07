@@ -130,24 +130,24 @@ class HassMQTTEntity(ABC, Generic[T]):
     @property
     def config_payload(self):
         """Return config payload."""
-        payload = {}
-        payload["availability"] = self.availability
-        payload["enabled_by_default"] = self.enabled_by_default
-        payload["name"] = self.name
-        payload["object_id"] = self.object_id  # last part of Home Assistant entity_id
-        payload["unique_id"] = self.unique_id
-        payload["state_topic"] = self.state_topic
-        payload["value_template"] = "{{ value_json.state }}"
-        payload["json_attributes_topic"] = self.json_attributes_topic
-        payload["json_attributes_template"] = "{{ value_json.attributes | tojson }}"
-
+        payload = {
+            "availability": self.availability,
+            "enabled_by_default": self.enabled_by_default,
+            "name": self.name,
+            "object_id": self.object_id,
+            "unique_id": self.unique_id,
+            "state_topic": self.state_topic,
+            "value_template": "{{ value_json.state }}",
+            "json_attributes_topic": self.json_attributes_topic,
+            "json_attributes_template": "{{ value_json.attributes | tojson }}",
+        }
         if self.entity_category:
             payload["entity_category"] = self.entity_category
 
         if self.device_name and self.device_identifiers:
             payload["device"] = self.device
 
-        if self.icon and self.icon:
+        if self.icon:
             payload["icon"] = self.icon
 
         return payload

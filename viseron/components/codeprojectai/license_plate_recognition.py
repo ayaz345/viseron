@@ -59,11 +59,9 @@ class LicensePlateRecognition(AbstractLicensePlateRecognition):
 
     def preprocess(self, post_processor_frame: PostProcessorFrame) -> np.ndarray:
         """Perform preprocessing of frame before running recognition."""
-        decoded_frame = self._camera.shared_frames.get_decoded_frame_rgb(
+        return self._camera.shared_frames.get_decoded_frame_rgb(
             post_processor_frame.shared_frame
         )
-
-        return decoded_frame
 
     def _process_frame(
         self, frame: np.ndarray, detected_object: DetectedObject
@@ -95,17 +93,19 @@ class LicensePlateRecognition(AbstractLicensePlateRecognition):
         if not result["success"]:
             return detections
 
-        for detection in sorted(result["predictions"], key=lambda x: x["confidence"]):
-            detections.append(
-                DetectedLicensePlate(
-                    detection["plate"],
-                    detection["confidence"],
-                    detection["x_min"],
-                    detection["y_min"],
-                    detection["x_max"],
-                    detection["y_max"],
-                )
+        detections.extend(
+            DetectedLicensePlate(
+                detection["plate"],
+                detection["confidence"],
+                detection["x_min"],
+                detection["y_min"],
+                detection["x_max"],
+                detection["y_max"],
             )
+            for detection in sorted(
+                result["predictions"], key=lambda x: x["confidence"]
+            )
+        )
         return detections
 
     def license_plate_recognition(
@@ -136,10 +136,9 @@ class CodeProjectAIALPR:
 
     def detect(self, image_bytes: bytes):
         """Process image_bytes and detect."""
-        response = cpai.process_image(
+        return cpai.process_image(
             url=self._url_base,
             image_bytes=image_bytes,
             min_confidence=self.min_confidence,
             timeout=self.timeout,
         )
-        return response

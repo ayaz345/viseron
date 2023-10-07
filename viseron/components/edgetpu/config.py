@@ -79,9 +79,7 @@ class DefaultLabelPath:
 
     def __call__(self, value):
         """Return default label path for specified domain."""
-        if value:
-            return value
-        return DEFAULT_LABEL_PATH_MAP[self.domain]
+        return value if value else DEFAULT_LABEL_PATH_MAP[self.domain]
 
 
 def get_label_schema(domain):
@@ -107,6 +105,6 @@ def get_label_schema(domain):
                 default=DEFAULT_CROP_CORRECTION,
             ): int,
         }
-        schema = {**schema, **image_classification_schema}
+        schema = schema | image_classification_schema
 
     return schema

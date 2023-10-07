@@ -90,10 +90,9 @@ class TestAppBase(AsyncHTTPTestCase):
         Required override for AsyncHTTPTestCase.
         AsyncHTTPTestCase does not support xsrf_cookies, so we disable it here.
         """
-        app = create_application(
+        return create_application(
             self.vis, {"debug": False}, "dummy_secret", xsrf_cookies=False
         )
-        return app
 
 
 class TestAppBaseNoAuth(TestAppBase):
@@ -162,6 +161,6 @@ class TestAppBaseAuth(TestAppBase):
         ).decode()
         kwargs["headers"]["Cookie"] += f"static_asset_key={static_asset_key_cookie};"
 
-        kwargs["headers"]["Authorization"] = "Bearer " + access_token
+        kwargs["headers"]["Authorization"] = f"Bearer {access_token}"
 
         return self.fetch(path, raise_error, **kwargs)

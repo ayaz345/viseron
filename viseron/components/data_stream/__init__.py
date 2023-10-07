@@ -180,7 +180,7 @@ class DataStream:
                     break
                 continue
 
-            if callable(callback["callback"]) and callback["ioloop"] is not None:
+            if callable(callback["callback"]):
                 if data:
                     callback["ioloop"].add_callback(callback["callback"], data)
                 else:

@@ -101,10 +101,7 @@ class CameraAPIHandler(BaseAPIHandler):
                 )
 
             ret, jpg = cv2.imencode(".jpg", img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
-            if ret:
-                return jpg.tobytes()
-            return None
-
+            return jpg.tobytes() if ret else None
         LOGGER.error(
             "Failed to retrieve the image from the camera. Status code: %s",
             response.status_code,

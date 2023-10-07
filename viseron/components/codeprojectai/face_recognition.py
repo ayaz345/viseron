@@ -223,8 +223,7 @@ class CodeProjectAIFace(cpai.CodeProjectAIFace):
     def list_faces(self):
         """List taught faces."""
         response = self.post_request(
-            url=self._url_base + "/face/list",
-            timeout=self.timeout,
+            url=f"{self._url_base}/face/list", timeout=self.timeout
         )
         del response["success"]
         return response
@@ -232,7 +231,7 @@ class CodeProjectAIFace(cpai.CodeProjectAIFace):
     def delete_face(self, face):
         """Delete a taught faces."""
         response = self.post_request(
-            url=self._url_base + "/face/delete",
+            url=f"{self._url_base}/face/delete",
             timeout=self.timeout,
             data={"userid": face},
         )
@@ -241,11 +240,9 @@ class CodeProjectAIFace(cpai.CodeProjectAIFace):
 
     def recognize(self, image_bytes: bytes):
         """Process image_bytes, performing recognition."""
-        response = cpai.process_image(
+        return cpai.process_image(
             url=self._url_recognize,
             image_bytes=image_bytes,
             min_confidence=self.min_confidence,
             timeout=self.timeout,
         )
-
-        return response

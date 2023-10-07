@@ -99,7 +99,7 @@ class RecorderBase:
     def __init__(
         self, vis: Viseron, config, camera: AbstractCamera | FailedCamera
     ) -> None:
-        self._logger = logging.getLogger(self.__module__ + "." + camera.identifier)
+        self._logger = logging.getLogger(f"{self.__module__}.{camera.identifier}")
         self._vis = vis
         self._config = config
         self._camera = camera
@@ -144,9 +144,7 @@ class RecorderBase:
     def get_recording(self, date, filename):
         """Return a recording."""
         file = Path(os.path.join(self.recordings_folder, date, filename))
-        if file.exists():
-            return self._recording_file_dict(file)
-        return {}
+        return self._recording_file_dict(file) if file.exists() else {}
 
     def get_latest_recording(self, date=None):
         """Return the latest recording."""
@@ -216,7 +214,7 @@ class RecorderBase:
                 folders = dirs.walkdirs("*-*-*")
                 for folder in folders:
                     shutil.rmtree(folder)
-        except (OSError, FileNotFoundError) as error:
+        except OSError as error:
             self._logger.error(f"Could not remove {path}", exc_info=error)
             return False
         return True

@@ -44,7 +44,7 @@ class Zone:
     ) -> None:
         self._vis = vis
         self._camera = vis.get_registered_domain(CAMERA_DOMAIN, camera_identifier)
-        self._logger = logging.getLogger(__name__ + "." + camera_identifier)
+        self._logger = logging.getLogger(f"{__name__}.{camera_identifier}")
 
         self._coordinates = generate_numpy_from_coordinates(
             zone_config[CONFIG_COORDINATES]

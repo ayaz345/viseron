@@ -71,9 +71,7 @@ class RecorderBinarySensor(CameraBinarySensor):
     @property
     def extra_attributes(self):
         """Return extra attributes."""
-        if self._recording:
-            return self._recording.as_dict()
-        return {}
+        return self._recording.as_dict() if self._recording else {}
 
     def handle_start_event(self, event_data: Event[EventRecorderData]) -> None:
         """Handle recorder start event."""

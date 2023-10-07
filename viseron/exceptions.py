@@ -102,10 +102,7 @@ class DomainNotRegisteredError(ViseronError):
 
     def __str__(self) -> str:
         """Return string representation."""
-        return ("Requested domain{}{}has not been registered").format(
-            self.domain,
-            f" with identifier {self.identifier} " if self.identifier else " ",
-        )
+        return f'Requested domain{self.domain}{f" with identifier {self.identifier} " if self.identifier else " "}has not been registered'
 
 
 class Unauthorized(ViseronError):

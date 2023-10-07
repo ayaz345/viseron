@@ -529,12 +529,10 @@ def setup_component(vis: Viseron, component: Component, tries: int = 1) -> None:
         vis.data[LOADING][component.name] = component
         if component.setup_component(tries=tries):
             vis.data[LOADED][component.name] = component
-            del vis.data[LOADING][component.name]
         else:
             LOGGER.error(f"Failed setup of component {component.name}")
             vis.data[FAILED][component.name] = component
-            del vis.data[LOADING][component.name]
-
+        del vis.data[LOADING][component.name]
     except ModuleNotFoundError as err:
         LOGGER.error(f"Failed to load component {component.name}: {err}")
         vis.data[FAILED][component.name] = component

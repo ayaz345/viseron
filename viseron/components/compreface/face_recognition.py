@@ -210,8 +210,4 @@ class CompreFaceTrain:
                 )
                 LOGGER.debug(f"CompreFace response: {result}")
                 if "message" in result:
-                    LOGGER.warning(
-                        "Image {} not suitable for training: {}".format(
-                            img_path, result
-                        )
-                    )
+                    LOGGER.warning(f"Image {img_path} not suitable for training: {result}")

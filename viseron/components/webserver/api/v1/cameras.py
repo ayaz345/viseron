@@ -34,9 +34,10 @@ class CamerasAPIHandler(BaseAPIHandler):
 
     def get_failed_cameras(self) -> None:
         """Return failed cameras."""
-        failed_cameras = {}
-        for failed_camera in (
-            self._vis.data[DOMAIN_FAILED].get(CAMERA_DOMAIN, {}).values()
-        ):
-            failed_cameras[failed_camera.identifier] = failed_camera.error_instance
+        failed_cameras = {
+            failed_camera.identifier: failed_camera.error_instance
+            for failed_camera in (
+                self._vis.data[DOMAIN_FAILED].get(CAMERA_DOMAIN, {}).values()
+            )
+        }
         self.response_success(response=failed_cameras)

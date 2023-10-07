@@ -40,7 +40,7 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
         """Run function in executor."""
         return await IOLoop.current().run_in_executor(None, func, *args)
 
-    async def prepare(self) -> None:  # pylint: disable=invalid-overridden-method
+    async def prepare(self) -> None:    # pylint: disable=invalid-overridden-method
         """Prepare request handler.
 
         get_current_user cannot be async, so we set self.current_user here.
@@ -48,8 +48,7 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
         if not self._webserver.auth:
             return
 
-        _user = self.get_cookie("user")
-        if _user:
+        if _user := self.get_cookie("user"):
             self.current_user = await self.run_in_executor(
                 self._webserver.auth.get_user, _user
             )
@@ -102,13 +101,13 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
         # infinite cookies in some browsers
         if new_session or self._webserver.auth.session_expiry is None:
             self.clear_cookie("refresh_token")
-            self.set_secure_cookie(  # Not a JWT
+            self.set_secure_cookie(
                 "refresh_token",
                 refresh_token.token,
                 expires=expires,
                 httponly=True,
                 samesite="strict",
-                secure=bool(self.request.protocol == "https"),
+                secure=self.request.protocol == "https",
             )
             self.clear_cookie("static_asset_key")
             self.set_secure_cookie(
@@ -117,7 +116,7 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
                 expires=expires,
                 httponly=True,
                 samesite="strict",
-                secure=bool(self.request.protocol == "https"),
+                secure=self.request.protocol == "https",
             )
             self.clear_cookie("user")
             self.set_cookie(
@@ -125,7 +124,7 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
                 user.id,
                 expires=expires,
                 samesite="strict",
-                secure=bool(self.request.protocol == "https"),
+                secure=self.request.protocol == "https",
             )
         self.clear_cookie("signature_cookie")
         self.set_secure_cookie(
@@ -134,7 +133,7 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
             expires=expires,
             httponly=True,
             samesite="strict",
-            secure=bool(self.request.protocol == "https"),
+            secure=self.request.protocol == "https",
         )
 
     def clear_all_cookies(self, path: str = "/", domain: str | None = None) -> None:
@@ -220,23 +219,18 @@ class ViseronRequestHandler(tornado.web.RequestHandler):
             camera = self._vis.get_registered_domain(CAMERA_DOMAIN, camera_identifier)
         except DomainNotRegisteredError:
             if failed:
-                domain_to_setup = (
+                if domain_to_setup := (
                     self._vis.data[DOMAIN_FAILED]
                     .get(CAMERA_DOMAIN, {})
                     .get(camera_identifier, None)
-                )
-                if domain_to_setup:
+                ):
                     camera = domain_to_setup.error_instance
         return camera
 
     def validate_camera_token(self, camera: AbstractCamera) -> bool:
         """Validate camera token."""
-        access_token = self.get_argument("access_token", None, strip=True)
-        if access_token:
-            if access_token in camera.access_tokens:
-                return True
-            return False
-
+        if access_token := self.get_argument("access_token", None, strip=True):
+            return access_token in camera.access_tokens
         # Access token query parameter not set, check cookies
         refresh_token_cookie = self.get_secure_cookie("refresh_token")
         static_asset_key = self.get_secure_cookie("static_asset_key")

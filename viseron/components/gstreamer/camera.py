@@ -309,7 +309,7 @@ class Camera(AbstractCamera):
     def _create_frame_reader(self):
         """Return a frame reader thread."""
         return RestartableThread(
-            name="viseron.camera." + self.identifier,
+            name=f"viseron.camera.{self.identifier}",
             target=self.read_frames,
             poll_method=self.poll_method,
             poll_target=self.poll_target,
@@ -394,9 +394,7 @@ class Camera(AbstractCamera):
         if not self.connected:
             return False
 
-        if now - self._poll_timer > self._config[CONFIG_FRAME_TIMEOUT]:
-            return True
-        return False
+        return now - self._poll_timer > self._config[CONFIG_FRAME_TIMEOUT]
 
     def calculate_output_fps(self, scanners: list[FrameIntervalCalculator]) -> None:
         """Calculate the camera output fps based on registered frame scanners.
@@ -489,6 +487,4 @@ class Camera(AbstractCamera):
     @property
     def is_on(self):
         """Return if camera is on."""
-        if self._frame_reader:
-            return self._frame_reader.is_alive()
-        return False
+        return self._frame_reader.is_alive() if self._frame_reader else False

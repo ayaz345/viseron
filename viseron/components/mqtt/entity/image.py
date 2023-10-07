@@ -49,8 +49,7 @@ class ImageMQTTEntity(MQTTEntity[ImageEntity]):
             )
         )
 
-        payload = {}
-        payload["attributes"] = self.entity.attributes
+        payload = {"attributes": self.entity.attributes}
         self._mqtt.publish(
             PublishPayload(
                 self.attributes_topic,

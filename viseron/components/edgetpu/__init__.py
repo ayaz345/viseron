@@ -141,10 +141,7 @@ def get_default_device(device):
     if device:
         return device
 
-    available_devices = list_edge_tpus()
-    if available_devices:
-        return ":0"
-    return DEVICE_CPU
+    return ":0" if (available_devices := list_edge_tpus()) else DEVICE_CPU
 
 
 def get_default_model(domain, model, device):
@@ -270,24 +267,21 @@ class EdgeTPUDetection(EdgeTPU):
 
     def post_process(self, _item):
         """Post process detections."""
-        processed_objects = []
         objects = detect.get_objects(self.interpreter, 0.1)
 
-        for obj in objects:
-            processed_objects.append(
-                DetectedObject(
-                    self.labels.get(obj.id, obj.id),
-                    float(obj.score),
-                    obj.bbox.xmin,
-                    obj.bbox.ymin,
-                    obj.bbox.xmax,
-                    obj.bbox.ymax,
-                    relative=False,
-                    model_res=(self.model_width, self.model_height),
-                )
+        return [
+            DetectedObject(
+                self.labels.get(obj.id, obj.id),
+                float(obj.score),
+                obj.bbox.xmin,
+                obj.bbox.ymin,
+                obj.bbox.xmax,
+                obj.bbox.ymax,
+                relative=False,
+                model_res=(self.model_width, self.model_height),
             )
-
-        return processed_objects
+            for obj in objects
+        ]
 
 
 class EdgeTPUClassification(EdgeTPU):

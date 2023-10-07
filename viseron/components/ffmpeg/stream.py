@@ -91,7 +91,7 @@ class Stream:
     def __init__(
         self, config: dict[str, Any], camera: Camera, camera_identifier: str
     ) -> None:
-        self._logger = logging.getLogger(__name__ + "." + camera_identifier)
+        self._logger = logging.getLogger(f"{__name__}.{camera_identifier}")
         self._logger.addFilter(
             UnhelpfullLogFilter(config[CONFIG_FFMPEG_RECOVERABLE_ERRORS])
         )
@@ -165,23 +165,17 @@ class Stream:
     @property
     def width(self) -> int:
         """Return stream width."""
-        if self._substream:
-            return self._substream.width
-        return self._mainstream.width
+        return self._substream.width if self._substream else self._mainstream.width
 
     @property
     def height(self) -> int:
         """Return stream height."""
-        if self._substream:
-            return self._substream.height
-        return self._mainstream.height
+        return self._substream.height if self._substream else self._mainstream.height
 
     @property
     def fps(self) -> int:
         """Return stream FPS."""
-        if self._substream:
-            return self._substream.fps
-        return self._mainstream.fps
+        return self._substream.fps if self._substream else self._mainstream.fps
 
     @property
     def output_fps(self):
@@ -254,9 +248,7 @@ class Stream:
             f"Video Codec: {codec} "
             f"Audio Codec: {audio_codec}"
         )
-        if width and height and fps and codec:
-            pass
-        else:
+        if not width or not height or not fps or not codec:
             raise StreamInformationError(width, height, fps, codec)
 
         return StreamInformation(
@@ -271,8 +263,8 @@ class Stream:
 
         codec = None
         codec_map = None
-        if stream_codec:
-            if stream_config[CONFIG_STREAM_FORMAT] in ["rtsp", "rtmp"]:
+        if stream_config[CONFIG_STREAM_FORMAT] in ["rtsp", "rtmp"]:
+            if stream_codec:
                 if os.getenv(ENV_RASPBERRYPI3) == "true":
                     codec_map = HWACCEL_RPI3_DECODER_CODEC_MAP
                 elif os.getenv(ENV_RASPBERRYPI4) == "true":
@@ -283,9 +275,7 @@ class Stream:
                     codec_map = HWACCEL_CUDA_DECODER_CODEC_MAP
                 if codec_map:
                     codec = codec_map.get(stream_codec, None)
-        if codec:
-            return ["-c:v", codec]
-        return []
+        return ["-c:v", codec] if codec else []
 
     def stream_command(
         self, stream_config: dict[str, Any], stream_codec: str, stream_url: str
@@ -363,12 +353,14 @@ class Stream:
         if self.output_fps < self.fps:
             filters.append(f"fps={self.output_fps}")
 
-        if filters:
-            return [
+        return (
+            [
                 "-vf",
                 ",".join(filters),
             ]
-        return []
+            if filters
+            else []
+        )
 
     def build_segment_command(self):
         """Return command for writing segments only from main stream.
@@ -496,7 +488,7 @@ class FFprobe:
     """FFprobe wrapper class."""
 
     def __init__(self, config: dict[str, Any], camera_identifier: str) -> None:
-        self._logger = logging.getLogger(__name__ + "." + camera_identifier)
+        self._logger = logging.getLogger(f"{__name__}.{camera_identifier}")
         self._config = config
         self._log_pipe = LogPipe(
             self._logger, FFPROBE_LOGLEVELS[config[CONFIG_FFPROBE_LOGLEVEL]]
@@ -533,7 +525,7 @@ class FFprobe:
             return (width, height, fps, codec, audio_codec)
 
         try:
-            fps = int(numerator / denominator)
+            fps = numerator // denominator
         except ZeroDivisionError:
             pass
 

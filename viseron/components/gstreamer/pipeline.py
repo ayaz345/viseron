@@ -136,9 +136,9 @@ class BasePipeline(AbstractPipeline):
         Returns decoder element from override map if it exists.
         Otherwise we assume the decoder element shares name with the codec.
         """
-        decoder_element = DECODER_ELEMENT_MAP.get(self._stream.mainstream.codec, None)
-
-        if decoder_element:
+        if decoder_element := DECODER_ELEMENT_MAP.get(
+            self._stream.mainstream.codec, None
+        ):
             return [
                 decoder_element,
                 "!",

@@ -63,9 +63,7 @@ class RestartableProcess:
     @property
     def exitcode(self) -> int | None:
         """Return process exit code."""
-        if self._process:
-            return self._process.exitcode
-        return 0
+        return self._process.exitcode if self._process else 0
 
     def start(self) -> None:
         """Start the process."""
@@ -90,9 +88,7 @@ class RestartableProcess:
 
     def is_alive(self) -> bool:
         """Return if the process is alive."""
-        if self._process:
-            return self._process.is_alive()
-        return False
+        return self._process.is_alive() if self._process else False
 
     def join(self, timeout: float | None = None) -> None:
         """Join the process."""
