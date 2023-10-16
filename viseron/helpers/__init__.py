@@ -24,11 +24,7 @@ LOGGER = logging.getLogger(__name__)
 
 def calculate_relative_contours(contours, resolution: tuple[int, int]):
     """Convert contours with absolute coords to relative."""
-    relative_contours = []
-    for contour in contours:
-        relative_contours.append(np.divide(contour, resolution))
-
-    return relative_contours
+    return [np.divide(contour, resolution) for contour in contours]
 
 
 def calculate_relative_coords(
@@ -188,10 +184,7 @@ def draw_objects(frame, objects, camera_resolution) -> None:
 def draw_zones(frame, zones) -> None:
     """Draw zones on supplied frame."""
     for zone in zones:
-        if zone.objects_in_zone:
-            color = (0, 255, 0)
-        else:
-            color = (0, 0, 255)
+        color = (0, 255, 0) if zone.objects_in_zone else (0, 0, 255)
         cv2.polylines(frame, [zone.coordinates], True, color, 2)
 
         cv2.putText(
@@ -308,18 +301,16 @@ def create_directory(path) -> None:
 
 def generate_numpy_from_coordinates(points):
     """Return a numpy array for a list of x+y coordinates."""
-    point_list = []
-    for point in points:
-        point_list.append([point["x"], point["y"]])
+    point_list = [[point["x"], point["y"]] for point in points]
     return np.array(point_list)
 
 
 def generate_mask(coordinates):
     """Return a mask used to limit motion or object detection to specific areas."""
-    mask = []
-    for mask_coordinates in coordinates:
-        mask.append(generate_numpy_from_coordinates(mask_coordinates["coordinates"]))
-    return mask
+    return [
+        generate_numpy_from_coordinates(mask_coordinates["coordinates"])
+        for mask_coordinates in coordinates
+    ]
 
 
 def object_in_polygon(resolution, obj: DetectedObject, coordinates):
@@ -457,12 +448,10 @@ def memory_usage_profiler(logger, key_type="lineno", limit=5) -> None:
             frame.lineno,
             stat.size / 1024,
         )
-        line = linecache.getline(frame.filename, frame.lineno).strip()
-        if line:
+        if line := linecache.getline(frame.filename, frame.lineno).strip():
             log_message += "\n    %s" % line
 
-    other = top_stats[limit:]
-    if other:
+    if other := top_stats[limit:]:
         size = sum(stat.size for stat in other)
         log_message += f"\n{len(other)} other: {size / 1024:.1f} KiB"
     total = sum(stat.size for stat in top_stats)

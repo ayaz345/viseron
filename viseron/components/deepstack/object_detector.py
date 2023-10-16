@@ -72,21 +72,19 @@ class ObjectDetector(AbstractObjectDetector):
 
     def postprocess(self, detections):
         """Return deepstack detections as DetectedObject."""
-        objects = []
-        for detection in detections:
-            objects.append(
-                DetectedObject(
-                    detection["label"],
-                    detection["confidence"],
-                    detection["x_min"],
-                    detection["y_min"],
-                    detection["x_max"],
-                    detection["y_max"],
-                    relative=False,
-                    model_res=self._image_resolution,
-                )
+        return [
+            DetectedObject(
+                detection["label"],
+                detection["confidence"],
+                detection["x_min"],
+                detection["y_min"],
+                detection["x_max"],
+                detection["y_max"],
+                relative=False,
+                model_res=self._image_resolution,
             )
-        return objects
+            for detection in detections
+        ]
 
     def return_objects(self, frame):
         """Perform object detection."""

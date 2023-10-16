@@ -42,9 +42,7 @@ class MQTTEntity(Generic[T]):
 
     def publish_state(self) -> None:
         """Publish state to MQTT."""
-        payload = {}
-        payload["state"] = self.entity.state
-        payload["attributes"] = self.entity.attributes
+        payload = {"state": self.entity.state, "attributes": self.entity.attributes}
         self._mqtt.publish(
             PublishPayload(
                 self.state_topic,

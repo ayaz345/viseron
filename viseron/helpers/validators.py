@@ -61,9 +61,7 @@ def valid_camera_identifier(value: Any) -> str:
 
 def request_argument_no_value(value) -> bool:
     """Return true for given request arguments without value."""
-    if value or (isinstance(value, str) and value == ""):
-        return True
-    return False
+    return bool(value or (isinstance(value, str) and value == ""))
 
 
 class CameraIdentifier(vol.Required):
@@ -99,7 +97,7 @@ class CoerceNoneToDict:
 
     def __repr__(self) -> str:
         """Return representation."""
-        return "CoerceNoneToDict(%s)" % "dict"
+        return 'CoerceNoneToDict(dict)'
 
 
 class Maybe(vol.Any):
@@ -148,6 +146,4 @@ def request_argument_bool(value):
     """
     if value == "true":
         return True
-    if value == "false":
-        return False
-    return bool(value)
+    return False if value == "false" else bool(value)

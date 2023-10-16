@@ -28,8 +28,7 @@ def setup(vis: Viseron, config) -> bool:
     vis.data[COMPONENT] = {}
 
     for camera_identifier, camera_config in config[CONFIG_CAMERA].items():
-        pruned_config = {}
-        pruned_config[camera_identifier] = camera_config
+        pruned_config = {camera_identifier: camera_config}
         setup_domain(
             vis, COMPONENT, CAMERA_DOMAIN, pruned_config, identifier=camera_identifier
         )

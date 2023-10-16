@@ -35,7 +35,7 @@ DOCS_PATH = "./docs/src/pages/components-explorer/components/{component}"
 
 
 # This function is copied and adapted from https://github.com/home-assistant-libs/voluptuous-serialize/blob/2.4.0/voluptuous_serialize/__init__.py # pylint: disable=line-too-long
-def convert(schema, custom_convert=None):  # noqa: C901
+def convert(schema, custom_convert=None):    # noqa: C901
     """Convert a voluptuous schema to a dictionary."""
     if isinstance(schema, vol.Schema):
         schema = schema.schema
@@ -54,11 +54,7 @@ def convert(schema, custom_convert=None):  # noqa: C901
             except AttributeError:
                 description = None
 
-            if isinstance(key, vol.Marker):
-                pkey = key.schema
-            else:
-                pkey = key
-
+            pkey = key.schema if isinstance(key, vol.Marker) else key
             pval = convert(value, custom_convert=custom_convert)
             if isinstance(pval, list):
                 pval = {"type": "map", "value": pval}
@@ -72,10 +68,7 @@ def convert(schema, custom_convert=None):  # noqa: C901
             if isinstance(key, (vol.Required, vol.Optional)):
                 pval[key.__class__.__name__.lower()] = True
 
-                if key.default is not vol.UNDEFINED:
-                    pval["default"] = key.default()
-                else:
-                    pval["default"] = None
+                pval["default"] = key.default() if key.default is not vol.UNDEFINED else None
                 pval["description"] = description
 
             val.append(pval)
@@ -130,10 +123,7 @@ def convert(schema, custom_convert=None):  # noqa: C901
             else:
                 val_dict.update(_val)
 
-        if val_list:
-            return val_list
-        return val_dict
-
+        return val_list if val_list else val_dict
     if isinstance(schema, (vol.Clamp, vol.Range)):
         val = {}
         if schema.min is not None:
@@ -196,9 +186,7 @@ def convert(schema, custom_convert=None):  # noqa: C901
         if schema in TYPES_MAP:
             return {"type": TYPES_MAP[schema]}
     except TypeError as error:
-        if "unhashable type" in str(error):
-            pass
-        else:
+        if "unhashable type" not in str(error):
             raise error
 
     if isinstance(schema, (str, int, float, bool)):
@@ -277,8 +265,7 @@ def import_component(component):
 
     supported_domains = {}
     for domain in typing_extensions.get_args(SupportedDomains):
-        imported_domain = import_domain(component, domain)
-        if imported_domain:
+        if imported_domain := import_domain(component, domain):
             supported_domains[domain] = imported_domain
     print(f"Found domains: {list(supported_domains.keys())}")
 
@@ -351,7 +338,7 @@ def generate_docs(args):
     """Generate docs for all or one component."""
     if args.all:
         for component in os.listdir("viseron/components/"):
-            if component[0:2] == "__":
+            if component[:2] == "__":
                 continue
             if component in EXCLUDED_COMPONENTS:
                 continue

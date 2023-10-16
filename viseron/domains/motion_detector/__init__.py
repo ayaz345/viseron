@@ -292,10 +292,8 @@ class AbstractMotionDetectorScanner(AbstractMotionDetector):
         """Filter motion."""
         self._logger.debug("Max motion area: %s", contours.max_area)
         self._motion_detected_setter(
-            bool(
-                contours.max_area
-                > self._config[CONFIG_CAMERAS][self._camera.identifier][CONFIG_AREA]
-            ),
+            contours.max_area
+            > self._config[CONFIG_CAMERAS][self._camera.identifier][CONFIG_AREA],
             shared_frame,
             contours,
         )

@@ -78,9 +78,7 @@ class WebSocketHandler(ViseronRequestHandler, tornado.websocket.WebSocketHandler
 
     def check_origin(self, origin):
         """Check request origin."""
-        if self.settings.get("debug"):
-            return True
-        return super().check_origin(origin)
+        return True if self.settings.get("debug") else super().check_origin(origin)
 
     def send_message(self, message) -> None:
         """Send message to client."""
@@ -152,7 +150,7 @@ class WebSocketHandler(ViseronRequestHandler, tornado.websocket.WebSocketHandler
 
         handlers = self._vis.data[WEBSOCKET_COMMANDS]
         if message["type"] not in handlers:
-            LOGGER.error("Unknown command: {}".format(message["type"]))
+            LOGGER.error(f'Unknown command: {message["type"]}')
             await self.async_send_message(
                 error_message(command_id, WS_ERROR_UNKNOWN_COMMAND, "Unknown command.")
             )

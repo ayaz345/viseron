@@ -43,7 +43,6 @@ def train(
     """
     LOGGER.debug("Training faces...")
 
-    face_encodings = []
     face_names = []
 
     # Loop through each person in the training set
@@ -64,6 +63,7 @@ def train(
         )
         return None, []
 
+    face_encodings = []
     for face_dir in faces_dirs:
         if face_dir == "unknown":
             continue
@@ -102,12 +102,7 @@ def train(
             if len(face_bounding_boxes) != 1:
                 # Skip image if amount of people !=1
                 LOGGER.warning(
-                    "Image {} not suitable for training: {}".format(
-                        img_path,
-                        "Didn't find a face"
-                        if len(face_bounding_boxes) < 1
-                        else "Found more than one face",
-                    )
+                    f"""Image {img_path} not suitable for training: {"Didn't find a face" if len(face_bounding_boxes) < 1 else "Found more than one face"}"""
                 )
             else:
                 # Add face encoding for current image to the training set

@@ -278,24 +278,21 @@ class DarknetDNN(BaseDarknet):
 
     def post_process(self, detections, _camera_resolution):
         """Post process detections."""
-        _detections = []
-        for (label, confidence, box) in zip(
-            detections[0], detections[1], detections[2]
-        ):
-            _detections.append(
-                DetectedObject(
-                    self.labels[int(label)],
-                    confidence,
-                    box[0],
-                    box[1],
-                    box[0] + box[2],
-                    box[1] + box[3],
-                    relative=False,
-                    model_res=self.model_res,
-                )
+        return [
+            DetectedObject(
+                self.labels[int(label)],
+                confidence,
+                box[0],
+                box[1],
+                box[0] + box[2],
+                box[1] + box[3],
+                relative=False,
+                model_res=self.model_res,
             )
-
-        return _detections
+            for label, confidence, box in zip(
+                detections[0], detections[1], detections[2]
+            )
+        ]
 
     @property
     def dnn_preferable_backend(self) -> int:
@@ -371,13 +368,12 @@ class DarknetNative(BaseDarknet, ChildProcessWorker):
     def _detect(self, frame, min_confidence):
         """Run detection on frame."""
         self._darknet.copy_image_from_bytes(self._darknet_image, frame)
-        detections = self._darknet.detect_image(
+        return self._darknet.detect_image(
             self._network,
             self._labels,
             self._darknet_image,
             thresh=min_confidence,
         )
-        return detections
 
     def work_input(self, item):
         """Perform object detection."""
@@ -408,24 +404,21 @@ class DarknetNative(BaseDarknet, ChildProcessWorker):
 
     def post_process(self, detections, camera_resolution):
         """Post process detections."""
-        _detections = []
-        for label, confidence, box in detections:
-            _detections.append(
-                DetectedObject(
-                    str(label),
-                    confidence,
-                    box[0],
-                    box[1],
-                    box[2],
-                    box[3],
-                    relative=False,
-                    model_res=self.model_res,
-                    letterboxed=True,
-                    frame_res=camera_resolution,
-                )
+        return [
+            DetectedObject(
+                str(label),
+                confidence,
+                box[0],
+                box[1],
+                box[2],
+                box[3],
+                relative=False,
+                model_res=self.model_res,
+                letterboxed=True,
+                frame_res=camera_resolution,
             )
-
-        return _detections
+            for label, confidence, box in detections
+        ]
 
     @property
     def model_width(self) -> int:

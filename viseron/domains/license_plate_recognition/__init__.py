@@ -133,18 +133,15 @@ class AbstractLicensePlateRecognition(AbstractPostProcessor):
         if not result:
             return None
 
-        _result = []
-        for plate in result:
-            _result.append(
-                LicensePlateRecognitionResult(
-                    self._camera.identifier,
-                    plate.plate,
-                    plate.confidence,
-                    plate.plate in self._config[CONFIG_KNOWN_PLATES],
-                )
+        return [
+            LicensePlateRecognitionResult(
+                self._camera.identifier,
+                plate.plate,
+                plate.confidence,
+                plate.plate in self._config[CONFIG_KNOWN_PLATES],
             )
-
-        return _result
+            for plate in result
+        ]
 
     def process(self, post_processor_frame: PostProcessorFrame) -> None:
         """Process frame and run license plate recognition.

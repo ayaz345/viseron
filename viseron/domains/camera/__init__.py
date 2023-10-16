@@ -492,9 +492,7 @@ class AbstractCamera(ABC):
         )
         self._clear_cache_timer.start()
 
-        if ret:
-            return ret, jpg.tobytes()
-        return ret, False
+        return (ret, jpg.tobytes()) if ret else (ret, False)
 
 
 class FailedCamera:

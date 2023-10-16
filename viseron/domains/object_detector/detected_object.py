@@ -112,16 +112,16 @@ class DetectedObject:
     @property
     def formatted(self):
         """Return object data in a single dictionary."""
-        payload = {}
-        payload["label"] = self.label
-        payload["confidence"] = self.confidence
-        payload["rel_width"] = self.rel_width
-        payload["rel_height"] = self.rel_height
-        payload["rel_x1"] = self.rel_x1
-        payload["rel_y1"] = self.rel_y1
-        payload["rel_x2"] = self.rel_x2
-        payload["rel_y2"] = self.rel_y2
-        return payload
+        return {
+            "label": self.label,
+            "confidence": self.confidence,
+            "rel_width": self.rel_width,
+            "rel_height": self.rel_height,
+            "rel_x1": self.rel_x1,
+            "rel_y1": self.rel_y1,
+            "rel_x2": self.rel_x2,
+            "rel_y2": self.rel_y2,
+        }
 
     @property
     def trigger_recorder(self):
@@ -166,9 +166,7 @@ def zero_if_negative(value):
     which causes problems when converting to absolute coordinates.
     This mitigates that.
     """
-    if value < 0:
-        return 0
-    return value
+    return max(value, 0)
 
 
 @dataclass

@@ -65,7 +65,7 @@ class Stream(FFmpegStream):
     def __init__(  # pylint: disable=super-init-not-called
         self, config: dict[str, Any], camera: Camera, camera_identifier: str
     ) -> None:
-        self._logger = logging.getLogger(__name__ + "." + camera_identifier)
+        self._logger = logging.getLogger(f"{__name__}.{camera_identifier}")
         self._logger.addFilter(
             UnhelpfullLogFilter(config[CONFIG_GSTREAMER_RECOVERABLE_ERRORS])
         )

@@ -141,19 +141,16 @@ def setup_viseron():
                     f"Camera with identifier {camera} is not enabled under component "
                     "nvr. This camera will not be processed"
                 )
-    else:
-        nvr_config: dict = {}
-        nvr_config["nvr"] = {}
-        cameras_to_setup = vis.data[DOMAINS_TO_SETUP].get(CAMERA_DOMAIN, {})
-        if cameras_to_setup:
-            for camera_to_setup in cameras_to_setup.keys():
-                LOGGER.warning(
-                    "Manually setting up component nvr with "
-                    f"identifier {camera_to_setup}. "
-                    "Consider adding it your config.yaml instead"
-                )
-                nvr_config["nvr"][camera_to_setup] = {}
-            setup_component(vis, get_component(vis, NVR_COMPONENT, nvr_config))
+    elif cameras_to_setup := vis.data[DOMAINS_TO_SETUP].get(CAMERA_DOMAIN, {}):
+        nvr_config: dict = {"nvr": {}}
+        for camera_to_setup in cameras_to_setup.keys():
+            LOGGER.warning(
+                "Manually setting up component nvr with "
+                f"identifier {camera_to_setup}. "
+                "Consider adding it your config.yaml instead"
+            )
+            nvr_config["nvr"][camera_to_setup] = {}
+        setup_component(vis, get_component(vis, NVR_COMPONENT, nvr_config))
 
     setup_domains(vis)
     vis.setup()
@@ -191,18 +188,17 @@ class Viseron:
 
         self.setup_threads: list[threading.Thread] = []
 
-        self.data: dict[str, Any] = {}
-        self.data[LOADING] = {}
-        self.data[LOADED] = {}
-        self.data[FAILED] = {}
-
-        self.data[DOMAIN_LOADING] = {}
-        self.data[DOMAIN_LOADED] = {}
-        self.data[DOMAIN_FAILED] = {}
-
-        self.data[DOMAINS_TO_SETUP] = {}
-        self.data[DOMAIN_SETUP_TASKS] = {}
-        self.data[DOMAIN_IDENTIFIERS] = {}
+        self.data: dict[str, Any] = {
+            LOADING: {},
+            LOADED: {},
+            FAILED: {},
+            DOMAIN_LOADING: {},
+            DOMAIN_LOADED: {},
+            DOMAIN_FAILED: {},
+            DOMAINS_TO_SETUP: {},
+            DOMAIN_SETUP_TASKS: {},
+            DOMAIN_IDENTIFIERS: {},
+        }
         self._domain_register_lock = threading.Lock()
         self.data[REGISTERED_DOMAINS] = {}
 

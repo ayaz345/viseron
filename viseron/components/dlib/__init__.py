@@ -27,9 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 def get_default_model() -> str:
     """Return default model."""
-    if os.getenv(ENV_CUDA_SUPPORTED) == "true":
-        return "cnn"
-    return "hog"
+    return "cnn" if os.getenv(ENV_CUDA_SUPPORTED) == "true" else "hog"
 
 
 FACE_RECOGNITION_SCHEMA = FACE_RECOGNITION_BASE_CONFIG_SCHEMA.extend(

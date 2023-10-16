@@ -48,9 +48,7 @@ class Entity(ABC):
         DO NOT OVERRIDE THIS METHOD.
         If you need to add attributes, override extra_attributes instead.
         """
-        attributes = {}
-        attributes["name"] = self.name
-        attributes["domain"] = self.domain
+        attributes = {"name": self.name, "domain": self.domain}
         attributes.update(self.extra_attributes or {})
         return attributes
 

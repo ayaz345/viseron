@@ -51,13 +51,14 @@ class LicensePlateRecognitionBinarySensor(CameraBinarySensor):
     @property
     def extra_attributes(self) -> dict[str, Any]:
         """Return entity attributes."""
-        attributes: dict[str, Any] = {}
-        attributes["camera_identifier"] = self._camera.identifier
-        attributes["camera_name"] = self._camera.name
-        attributes["plate"] = self._plate
-        attributes["detected"] = self._detected
         if self._result:
-            attributes["confidence"] = self._result.confidence
+            attributes: dict[str, Any] = {
+                "camera_identifier": self._camera.identifier,
+                "camera_name": self._camera.name,
+                "plate": self._plate,
+                "detected": self._detected,
+                "confidence": self._result.confidence,
+            }
         return {}
 
     def plate_detected(self, event_data: Event[EventLicensePlateRecognition]) -> None:

@@ -214,7 +214,7 @@ class DeepstackFace(ds.DeepstackFace):
     def list_faces(self):
         """List taught faces."""
         response = self.post_request(
-            url=self._url_base + "/face/list",
+            url=f"{self._url_base}/face/list",
             api_key=self._api_key,
             timeout=self._timeout,
         )
@@ -224,7 +224,7 @@ class DeepstackFace(ds.DeepstackFace):
     def delete_face(self, face):
         """Delete a taught faces."""
         response = self.post_request(
-            url=self._url_base + "/face/delete",
+            url=f"{self._url_base}/face/delete",
             api_key=self._api_key,
             timeout=self._timeout,
             data={"userid": face},

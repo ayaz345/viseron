@@ -124,10 +124,7 @@ class BaseAPIHandler(ViseronRequestHandler):
                 )
                 self.response_error(
                     HTTPStatus.BAD_REQUEST,
-                    reason="Invalid body: {}. {}".format(
-                        self.request.body.decode(),
-                        humanize_error(json_body, err),
-                    ),
+                    reason=f"Invalid body: {self.request.body.decode()}. {humanize_error(json_body, err)}",
                 )
                 return False
         return True
@@ -204,20 +201,19 @@ class BaseAPIHandler(ViseronRequestHandler):
                                 HTTPStatus.FORBIDDEN, reason="Insufficient permissions"
                             )
                             return
-                    else:
-                        if (
+                    elif (
                             self.current_user.group
                             not in METHOD_ALLOWED_GROUPS[self.request.method]
                         ):
-                            LOGGER.debug(
-                                "Request with invalid permissions, endpoint requires"
-                                f" {METHOD_ALLOWED_GROUPS[self.request.method]}, user"
-                                f" is in group {self.current_user.group}"
-                            )
-                            self.response_error(
-                                HTTPStatus.FORBIDDEN, reason="Insufficient permissions"
-                            )
-                            return
+                        LOGGER.debug(
+                            "Request with invalid permissions, endpoint requires"
+                            f" {METHOD_ALLOWED_GROUPS[self.request.method]}, user"
+                            f" is in group {self.current_user.group}"
+                        )
+                        self.response_error(
+                            HTTPStatus.FORBIDDEN, reason="Insufficient permissions"
+                        )
+                        return
 
                 params = path_match.match(self.request)
                 if params is None:
@@ -236,10 +232,7 @@ class BaseAPIHandler(ViseronRequestHandler):
                         )
                         self.response_error(
                             HTTPStatus.BAD_REQUEST,
-                            reason="Invalid request arguments: {}. {}".format(
-                                request_arguments,
-                                humanize_error(request_arguments, err),
-                            ),
+                            reason=f"Invalid request arguments: {request_arguments}. {humanize_error(request_arguments, err)}",
                         )
                         return
 
@@ -276,15 +269,7 @@ class BaseAPIHandler(ViseronRequestHandler):
                     return
 
                 LOGGER.debug(
-                    (
-                        "Routing to {}.{}(*args={}, **kwargs={}, request_arguments={})"
-                    ).format(
-                        self.__class__.__name__,
-                        route["method"],
-                        path_args,
-                        path_kwargs,
-                        self.request_arguments,
-                    ),
+                    f'Routing to {self.__class__.__name__}.{route["method"]}(*args={path_args}, **kwargs={path_kwargs}, request_arguments={self.request_arguments})'
                 )
                 try:
                     getattr(self, route["method"])(*path_args, **path_kwargs)

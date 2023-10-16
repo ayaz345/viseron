@@ -19,7 +19,4 @@ class JSONEncoder(json.JSONEncoder):
             return dataclasses.asdict(o)
         if isinstance(o, datetime.timedelta):
             return int(o.total_seconds())
-        if isinstance(o, Enum):
-            return o.value
-
-        return json.JSONEncoder.default(self, o)
+        return o.value if isinstance(o, Enum) else json.JSONEncoder.default(self, o)

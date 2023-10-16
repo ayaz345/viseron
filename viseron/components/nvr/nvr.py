@@ -222,7 +222,7 @@ class NVR:
             CAMERA_DOMAIN, camera_identifier
         )
 
-        self._logger = logging.getLogger(__name__ + "." + camera_identifier)
+        self._logger = logging.getLogger(f"{__name__}.{camera_identifier}")
         self._logger.debug(f"Initializing NVR for camera {self._camera.name}")
 
         self._start_recorder = False
@@ -285,8 +285,7 @@ class NVR:
             and self._object_detector.scan_on_motion_only
         ):
             self._frame_scanners[MOTION_DETECTOR].scan = True
-            if self._object_detector:
-                self._frame_scanners[OBJECT_DETECTOR].scan = False
+            self._frame_scanners[OBJECT_DETECTOR].scan = False
         else:
             if self._object_detector and self._motion_detector:
                 self._frame_scanners[OBJECT_DETECTOR].scan = True
@@ -409,10 +408,11 @@ class NVR:
     ) -> bool:
         """Check if object should stop the recorder."""
         if obj.trigger_recorder:
-            if self._motion_detector:
-                if not self.event_over_check_motion(obj, object_filters):
-                    return False
-            else:
+            if (
+                self._motion_detector
+                and not self.event_over_check_motion(obj, object_filters)
+                or not self._motion_detector
+            ):
                 return False
         return True
 
@@ -467,19 +467,13 @@ class NVR:
         self, obj: DetectedObject, object_filters: dict[str, Filter]
     ) -> bool:
         """Check if object should start the recorder."""
-        # Discard object if it requires motion but motion is not detected
-        if (
-            obj.trigger_recorder
-            and object_filters.get(obj.label)
-            and object_filters.get(obj.label).require_motion  # type: ignore[union-attr]
-            and self._motion_detector
-            and not self._motion_detector.motion_detected
-        ):
-            return False
-
         if obj.trigger_recorder:
-            return True
-
+            return bool(
+                not object_filters.get(obj.label)
+                or not object_filters.get(obj.label).require_motion
+                or not self._motion_detector
+                or self._motion_detector.motion_detected
+            )
         return False
 
     def process_object_event(self) -> None:
@@ -495,8 +489,7 @@ class NVR:
         # Only process objects if we are actively scanning for objects and the last
         # scan did not return an error
         if (
-            self._object_detector
-            and not self._frame_scanners[OBJECT_DETECTOR].scan
+            not self._frame_scanners[OBJECT_DETECTOR].scan
             and not self._frame_scanners[OBJECT_DETECTOR].scan_error
         ):
             return
@@ -525,13 +518,12 @@ class NVR:
         # Only process motion if we are actively scanning for motion and the last
         # scan did not return an error
         if (
-            self._motion_detector
-            and not self._frame_scanners[MOTION_DETECTOR].scan
+            not self._frame_scanners[MOTION_DETECTOR].scan
             and not self._frame_scanners[MOTION_DETECTOR].scan_error
         ):
             return
 
-        if self._motion_detector and self._motion_detector.motion_detected:
+        if self._motion_detector.motion_detected:
             if (
                 self._object_detector
                 and self._object_detector.scan_on_motion_only

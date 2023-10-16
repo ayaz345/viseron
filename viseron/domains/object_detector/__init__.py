@@ -256,9 +256,10 @@ class AbstractObjectDetector(ABC):
                 )
 
         self.zones: list[Zone] = []
-        for zone in config[CONFIG_CAMERAS][camera_identifier][CONFIG_ZONES]:
-            self.zones.append(Zone(vis, component, camera_identifier, zone, self._mask))
-
+        self.zones.extend(
+            Zone(vis, component, camera_identifier, zone, self._mask)
+            for zone in config[CONFIG_CAMERAS][camera_identifier][CONFIG_ZONES]
+        )
         if not self.zones and not self.object_filters:
             self._logger.warning(
                 "No labels or zones configured. No objects will be detected"
@@ -440,9 +441,7 @@ class AbstractObjectDetector(ABC):
     @staticmethod
     def _avg_fps(fps_deque: collections.deque):
         """Calculate the average fps from a deuqe of measurements."""
-        if fps_deque:
-            return round(sum(fps_deque) / len(fps_deque), 1)
-        return 0
+        return round(sum(fps_deque) / len(fps_deque), 1) if fps_deque else 0
 
     @property
     def preproc_fps(self):

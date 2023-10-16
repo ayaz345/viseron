@@ -22,16 +22,12 @@ def main():
     viseron = setup_viseron()
 
     signal.pause()
-    if viseron:
-        return viseron.exit_code
-    return 0
+    return viseron.exit_code if viseron else 0
 
 
 def init():
     """Initialize."""
-    if __name__ == "__main__":
-        return main()
-    return 1
+    return main() if __name__ == "__main__" else 1
 
 
 sys.exit(init())

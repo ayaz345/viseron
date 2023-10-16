@@ -177,9 +177,7 @@ class Auth:
     @property
     def onboarding_complete(self) -> bool:
         """Return onboarding status."""
-        if self.users or os.path.exists(self.onboarding_path):
-            return True
-        return False
+        return bool(self.users or os.path.exists(self.onboarding_path))
 
     @staticmethod
     def hash_password(password: str) -> str:
@@ -270,11 +268,10 @@ class Auth:
         LOGGER.debug("Loading data from auth store")
         data = self._auth_store.load()
 
-        users: dict[str, User] = {}
         refresh_tokens: dict[str, RefreshToken] = {}
 
-        for user in data.get("users", {}).values():
-            users[user["id"]] = User(
+        users: dict[str, User] = {
+            user["id"]: User(
                 name=user["name"],
                 username=user["username"],
                 password=user["password"],
@@ -282,7 +279,8 @@ class Auth:
                 id=user["id"],
                 enabled=user["enabled"],
             )
-
+            for user in data.get("users", {}).values()
+        }
         for refresh_token in data.get("refresh_tokens", {}).values():
             refresh_tokens[refresh_token["id"]] = RefreshToken(
                 user_id=refresh_token["user_id"],
@@ -405,7 +403,4 @@ class Auth:
             return None
 
         user = self.get_user(refresh_token.user_id)
-        if user is None or not user.enabled:
-            return None
-
-        return refresh_token
+        return None if user is None or not user.enabled else refresh_token

@@ -70,23 +70,21 @@ class ObjectDetector(AbstractObjectDetector):
 
     def postprocess(self, detections):
         """Return CodeProject.AI detections as DetectedObject."""
-        objects = []
-        for detection in detections:
-            objects.append(
-                DetectedObject(
-                    detection["label"],
-                    detection["confidence"],
-                    detection["x_min"],
-                    detection["y_min"],
-                    detection["x_max"],
-                    detection["y_max"],
-                    relative=False,
-                    model_res=self._image_resolution,
-                    letterboxed=bool(self._config[CONFIG_IMAGE_SIZE]),
-                    frame_res=self._camera.resolution,
-                )
+        return [
+            DetectedObject(
+                detection["label"],
+                detection["confidence"],
+                detection["x_min"],
+                detection["y_min"],
+                detection["x_max"],
+                detection["y_max"],
+                relative=False,
+                model_res=self._image_resolution,
+                letterboxed=bool(self._config[CONFIG_IMAGE_SIZE]),
+                frame_res=self._camera.resolution,
             )
-        return objects
+            for detection in detections
+        ]
 
     def return_objects(self, frame):
         """Perform object detection."""

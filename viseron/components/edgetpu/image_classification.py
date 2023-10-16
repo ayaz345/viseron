@@ -60,11 +60,9 @@ class ImageClassification(AbstractImageClassification):
 
     def preprocess(self, post_processor_frame: PostProcessorFrame) -> np.ndarray:
         """Perform preprocessing of frame before running classification."""
-        decoded_frame = self._camera.shared_frames.get_decoded_frame_rgb(
+        return self._camera.shared_frames.get_decoded_frame_rgb(
             post_processor_frame.shared_frame
         )
-
-        return decoded_frame
 
     def image_classification(
         self, frame: np.ndarray, post_processor_frame: PostProcessorFrame
@@ -94,12 +92,11 @@ class ImageClassification(AbstractImageClassification):
             resized_frame = cv2.resize(
                 cropped_frame, (self.model_width, self.model_height)
             )
-            result = self._edgetpu.invoke(
+            if result := self._edgetpu.invoke(
                 resized_frame,
                 self._camera_identifier,
                 self._classification_result_queue,
-            )
-            if result:
+            ):
                 image_classifications.append(result)
         return image_classifications
 
